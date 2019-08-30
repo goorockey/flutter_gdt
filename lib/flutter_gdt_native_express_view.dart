@@ -2,21 +2,39 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class FlutterGdtExpressView extends StatelessWidget {
+class FlutterGdtExpressView extends StatefulWidget {
   final String appId;
   final String positionId;
-  final num width;
-  final num height;
-  final num preloadCount;
-  final Function adCallback;
+  final int width;
+  final int height;
+  final int preloadCount;
+  final Function onLoaded;
+  final Function onError;
+  final Function onClick;
 
   FlutterGdtExpressView(
-      {this.appId,
-      this.positionId,
-      this.width,
-      this.height,
-      this.preloadCount,
-      this.adCallback});
+    this.appId,
+    this.positionId, {
+    this.width,
+    this.height,
+    this.preloadCount,
+    this.onLoaded,
+    this.onError,
+    this.onClick,
+  });
+
+  @override
+  _FlutterGdtExpressViewState createState() => _FlutterGdtExpressViewState();
+}
+
+class _FlutterGdtExpressViewState extends State<FlutterGdtExpressView> {
+  MethodChannel _channel;
+  bool loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,46 +50,80 @@ class FlutterGdtExpressView extends StatelessWidget {
     return Container(width: 0, height: 0);
   }
 
-  Widget _androidView() {
-    return AndroidView(
-      viewType: "flutter_gdt_native_express_ad_view",
-      onPlatformViewCreated: (id) async {
-        final channel = MethodChannel(
-            "flutter_gdt_native_express_ad_view_" + id.toString());
-        final success = await channel.invokeMethod("showNativeExpressAd", {
-          "appId": appId,
-          "positionId": positionId,
-          "width": width,
-          "height": height,
-          "preloadCount": preloadCount ?? 1,
-        });
-        if (adCallback != null) {
-          adCallback(success);
+  Future<dynamic> _onMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case 'adClicked':
+        {
+          widget.onClick?.call();
+          break;
         }
-      },
+      default:
+        break;
+    }
+  }
+
+  _loadView(final int id) async {
+    if (_channel == null) {
+      _channel =
+          MethodChannel("flutter_gdt_native_express_ad_view_" + id.toString());
+      _channel.setMethodCallHandler(_onMethodCall);
+    }
+
+    final result = await _channel.invokeMethod("showNativeExpressAd", {
+      "appId": widget.appId,
+      "positionId": widget.positionId,
+      "width": widget.width,
+      "height": widget.height,
+      "preloadCount": widget.preloadCount ?? 1,
+    });
+
+    if (mounted && loaded != result) {
+      setState(() {
+        loaded = result;
+      });
+    }
+
+    if (result == true) {
+      widget.onLoaded?.call(() {
+        _loadView(id);
+      });
+    } else {
+      widget.onError?.call(() {
+        _loadView(id);
+      });
+    }
+  }
+
+  Widget _androidView() {
+    return Container(
+      height: loaded ? widget.height.toDouble() : 1,
+      width: loaded ? widget.width.toDouble() : 1,
+      child: AndroidView(
+        viewType: "flutter_gdt_native_express_ad_view",
+        onPlatformViewCreated: (id) async {
+          _loadView(id);
+        },
+      ),
     );
   }
 
   Widget _iosView() {
-    return UiKitView(
-      viewType: "flutter_gdt_native_express_ad_view",
-      creationParams: <String, dynamic>{
-        "appId": appId,
-        "positionId": positionId,
-        "width": width,
-        "height": height,
-      },
-      creationParamsCodec: new StandardMessageCodec(),
-      onPlatformViewCreated: (int id) async {
-        final success =
-            await MethodChannel("flutter_gdt_native_express_ad_view_$id")
-                .invokeMethod("showNativeExpressAd");
-        if (adCallback != null) {
-          print('-----adCallback');
-          adCallback(success);
-        }
-        print("flutter_gdt_plugin: ios dart ios view created.$success--$id");
-      },
+    return Container(
+      height: loaded ? widget.height.toDouble() : 1,
+      width: loaded ? widget.width.toDouble() : 1,
+      child: UiKitView(
+        viewType: "flutter_gdt_native_express_ad_view",
+        creationParams: <String, dynamic>{
+          "appId": widget.appId,
+          "positionId": widget.positionId,
+          "width": widget.width,
+          "height": widget.height,
+        },
+        creationParamsCodec: new StandardMessageCodec(),
+        onPlatformViewCreated: (int id) async {
+          _loadView(id);
+        },
+      ),
     );
   }
 }

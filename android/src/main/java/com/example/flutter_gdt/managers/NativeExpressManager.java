@@ -50,6 +50,7 @@ public class NativeExpressManager {
   private HashMap<String, NativeExpressAD> mNativeExpressAdCache;
   private HashMap<String, ConcurrentLinkedQueue<NativeExpressADView>> mNativeExpressAdViewCache;
   private MethodChannel.Result mTmpResult;
+  private MethodChannel mMethodChannel;
 
   public void preloadNativeExpressAd(Activity activity, String appId, final String positionId, ADSize adSize,
       int preloadCount) {
@@ -57,16 +58,49 @@ public class NativeExpressManager {
       mNativeExpressAdCache.put(positionId, new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
         @Override
         public void onADLoaded(List<NativeExpressADView> list) {
+          super.onADLoaded(list);
+
           putAdViewCache(positionId, list);
         }
 
         @Override
         public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
-          if (mTmpResult == null) {
-            return;
+          super.onRenderSuccess(nativeExpressADView);
+
+          if (mTmpResult != null) {
+            mTmpResult.success(true);
+            mTmpResult = null;
           }
-          mTmpResult.success(true);
-          mTmpResult = null;
+        }
+
+        @Override
+        public void onRenderFail(NativeExpressADView adView) {
+          super.onRenderFail(adView);
+
+          if (mTmpResult != null) {
+            mTmpResult.success(false);
+            mTmpResult = null;
+          }
+        }
+
+        @Override
+        public void onNoAD(AdError adError) {
+          super.onNoAD(adError);
+
+          if (mTmpResult != null) {
+            mTmpResult.success(false);
+            mTmpResult = null;
+          }
+        }
+
+        @Override
+        public void onADClicked(NativeExpressADView adView) {
+          super.onADClicked(adView);
+
+          if (mMethodChannel != null) {
+            mMethodChannel.invokeMethod("adClicked", null);
+            mMethodChannel = null;
+          }
         }
       }));
     }
@@ -76,8 +110,11 @@ public class NativeExpressManager {
   }
 
   public void getNativeExpressView(Activity activity, String appId, final String positionId, ADSize adSize,
-      int preloadCount, final MethodChannel.Result result, final NativeExpressViewGetCallback callback) {
-      mTmpResult = result;
+      int preloadCount, final MethodChannel.Result result, final MethodChannel methodChannel,
+      final NativeExpressViewGetCallback callback) {
+    mTmpResult = result;
+    mMethodChannel = methodChannel;
+
     ConcurrentLinkedQueue<NativeExpressADView> adViews = getViewQueue(positionId);
     if (adViews != null && adViews.size() > 0) {
       if (callback != null) {
@@ -93,6 +130,8 @@ public class NativeExpressManager {
     new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
       @Override
       public void onADLoaded(List<NativeExpressADView> list) {
+        super.onADLoaded(list);
+
         if (list == null || list.isEmpty()) {
           return;
         }
@@ -104,11 +143,42 @@ public class NativeExpressManager {
 
       @Override
       public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
-        if (mTmpResult == null) {
-          return;
+        super.onRenderSuccess(nativeExpressADView);
+
+        if (mTmpResult != null) {
+          mTmpResult.success(true);
+          mTmpResult = null;
         }
-        mTmpResult.success(true);
-        mTmpResult = null;
+      }
+
+      @Override
+      public void onRenderFail(NativeExpressADView adView) {
+        super.onRenderFail(adView);
+
+        if (mTmpResult != null) {
+          mTmpResult.success(false);
+          mTmpResult = null;
+        }
+      }
+
+      @Override
+      public void onNoAD(AdError adError) {
+        super.onNoAD(adError);
+
+        if (mTmpResult != null) {
+          mTmpResult.success(false);
+          mTmpResult = null;
+        }
+      }
+
+      @Override
+      public void onADClicked(NativeExpressADView adView) {
+        super.onADClicked(adView);
+
+        if (mMethodChannel != null) {
+          mMethodChannel.invokeMethod("adClicked", null);
+          mMethodChannel = null;
+        }
       }
     }).loadAD(preloadCount);
 
@@ -134,31 +204,48 @@ public class NativeExpressManager {
 
   private abstract class AdListener implements NativeExpressAD.NativeExpressADListener {
     @Override
+    public void onADLoaded(List<NativeExpressADView> list) {
+      Log.i(Consts.TAG, "Adnet express ad render loaded");
+    }
+
+    @Override
+    public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad render success");
+    }
+
+    @Override
     public void onRenderFail(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad render fail");
     }
 
     @Override
     public void onADExposure(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad showed");
     }
 
     @Override
     public void onADClicked(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad clicked");
     }
 
     @Override
     public void onADClosed(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad closed");
     }
 
     @Override
     public void onADLeftApplication(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad left app");
     }
 
     @Override
     public void onADOpenOverlay(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad open overlay");
     }
 
     @Override
     public void onADCloseOverlay(NativeExpressADView nativeExpressADView) {
+      Log.i(Consts.TAG, "Adnet express ad close overlay");
     }
 
     @Override

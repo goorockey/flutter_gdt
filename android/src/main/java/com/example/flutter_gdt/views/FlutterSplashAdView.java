@@ -1,5 +1,6 @@
 package com.example.flutter_gdt.views;
 
+import android.util.Log;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -26,17 +27,17 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.plugin.common.BinaryMessenger;
 
 /**
- * @author luopeng
- * Created at 2019-08-19 23:23
+ * @author luopeng Created at 2019-08-19 23:23
  */
 public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCallHandler {
     private LinearLayout mLinearLayout;
     private Activity mActivity;
     private String mAppId;
     private String mPositionId;
+    private MethodChannel methodChannel;
 
     FlutterSplashAdView(Activity activity, BinaryMessenger messenger, int id) {
-        MethodChannel methodChannel = new MethodChannel(messenger, "flutter_gdt_splash_ad_view_" + id);
+        methodChannel = new MethodChannel(messenger, "flutter_gdt_splash_ad_view_" + id);
         methodChannel.setMethodCallHandler(this);
         this.mActivity = activity;
         if (mLinearLayout == null) {
@@ -65,7 +66,7 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                         final Window window = (Window) windowField.get(decorView);
                         windowField.setAccessible(false);
                         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         // log the exception
                     }
                 }
@@ -114,18 +115,24 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
 
                 @Override
                 public void onADPresent() {
+                    Log.i(Consts.TAG, "Adnet splash ad present");
                 }
 
                 @Override
                 public void onADClicked() {
+                    Log.i(Consts.TAG, "Adnet splash ad clicked");
+
+                    methodChannel.invokeMethod("adClicked", null);
                 }
 
                 @Override
                 public void onADTick(long l) {
+                    Log.i(Consts.TAG, "Adnet splash ad tick");
                 }
 
                 @Override
                 public void onADExposure() {
+                    Log.i(Consts.TAG, "Adnet splash ad showed");
                 }
             }, 3000);
         } catch (Exception e) {

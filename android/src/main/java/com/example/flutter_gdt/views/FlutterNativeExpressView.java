@@ -35,9 +35,10 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
   private NativeExpressADView mNativeExpressAdView;
   private LinearLayout mLinearLayout;
   private Activity mActivity;
+  private MethodChannel methodChannel;
 
   FlutterNativeExpressView(Activity activity, BinaryMessenger messenger, int id) {
-    MethodChannel methodChannel = new MethodChannel(messenger, "flutter_gdt_native_express_ad_view_" + id);
+    methodChannel = new MethodChannel(messenger, "flutter_gdt_native_express_ad_view_" + id);
     methodChannel.setMethodCallHandler(this);
     this.mActivity = activity;
     if (mLinearLayout == null) {
@@ -56,20 +57,20 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
         @Override
         public void run() {
           try {
-              ViewParent parent = mLinearLayout.getParent();
-              if (parent == null) {
-                  return;
-              }
-              while (parent.getParent() != null) {
-                  parent = parent.getParent();
-              }
-              Object decorView = parent.getClass().getDeclaredMethod("getView").invoke(parent);
-              final Field windowField = decorView.getClass().getDeclaredField("mWindow");
-              windowField.setAccessible(true);
-              final Window window = (Window) windowField.get(decorView);
-              windowField.setAccessible(false);
-              window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-          } catch(Exception e) {
+            ViewParent parent = mLinearLayout.getParent();
+            if (parent == null) {
+              return;
+            }
+            while (parent.getParent() != null) {
+              parent = parent.getParent();
+            }
+            Object decorView = parent.getClass().getDeclaredMethod("getView").invoke(parent);
+            final Field windowField = decorView.getClass().getDeclaredField("mWindow");
+            windowField.setAccessible(true);
+            final Window window = (Window) windowField.get(decorView);
+            windowField.setAccessible(false);
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+          } catch (Exception e) {
             // log the exception
           }
         }
@@ -82,6 +83,7 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
   public void dispose() {
     if (mNativeExpressAdView != null) {
       mNativeExpressAdView.destroy();
+      mNativeExpressAdView = null;
     }
   }
 
@@ -126,10 +128,15 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
     mLinearLayout.setLayoutParams(layoutParams);
 
     NativeExpressManager.getInstance().getNativeExpressView(mActivity, appId, positionId,
-        new ADSize(expressWidth, expressHeight), preloadCount, result,
+        new ADSize(expressWidth, expressHeight), preloadCount, result, methodChannel,
         new NativeExpressManager.NativeExpressViewGetCallback() {
           @Override
           public void viewGet(NativeExpressADView view) {
+            if (mNativeExpressAdView != null) {
+              mNativeExpressAdView.destroy();
+            }
+            mNativeExpressAdView = view;
+
             view.render();
             mLinearLayout.removeAllViews();
             mLinearLayout.addView(view,
