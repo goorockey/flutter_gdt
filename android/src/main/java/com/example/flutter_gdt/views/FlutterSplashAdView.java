@@ -97,15 +97,13 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
             new SplashAD(mActivity, mLinearLayout, appId, positionId, new SplashADListener() {
                 @Override
                 public void onADDismissed() {
-                    try {
-                        result.success(true);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    Log.i(Consts.TAG, "Adnet splash ad dismissed");
+                    methodChannel.invokeMethod("adDismissed", null);
                 }
 
                 @Override
                 public void onNoAD(AdError adError) {
+                    Log.i(Consts.TAG, "Adnet splash ad noad");
                     try {
                         result.success(false);
                     } catch (Exception e) {
@@ -128,11 +126,18 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                 @Override
                 public void onADTick(long l) {
                     Log.i(Consts.TAG, "Adnet splash ad tick");
+
+                    methodChannel.invokeMethod("adTick", l);
                 }
 
                 @Override
                 public void onADExposure() {
                     Log.i(Consts.TAG, "Adnet splash ad showed");
+                    try {
+                        result.success(true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }, 3000);
         } catch (Exception e) {

@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 
+export 'flutter_gdt_native_express_view.dart';
+export 'flutter_gdt_splash_view.dart';
+
 class FlutterGdt {
   static const MethodChannel _channel = MethodChannel('flutter_gdt');
   static Future<bool> checkPermissions() async {
