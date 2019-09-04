@@ -27,6 +27,7 @@ class FlutterGdtSplashView extends StatefulWidget {
 
 class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
   MethodChannel _channel;
+  int _channelId;
   bool loaded = false;
 
   @override
@@ -47,12 +48,16 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
     switch (call.method) {
       case 'adClicked':
         {
-          widget.onClick?.call();
+          widget.onClick?.call(() {
+            _loadView();
+          });
           break;
         }
       case 'adTick':
         {
-          widget.onTick?.call();
+          widget.onTick?.call(() {
+            _loadView();
+          });
           break;
         }
       case 'adDismissed':
@@ -65,9 +70,10 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
     }
   }
 
-  _loadView(final int id) async {
+  _loadView() async {
     if (_channel == null) {
-      _channel = MethodChannel("flutter_gdt_splash_ad_view_" + id.toString());
+      _channel =
+          MethodChannel("flutter_gdt_splash_ad_view_" + _channelId.toString());
       _channel.setMethodCallHandler(_onMethodCall);
     }
 
@@ -84,11 +90,11 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
 
     if (result == true) {
       widget.onLoaded?.call(() {
-        _loadView(id);
+        _loadView();
       });
     } else {
       widget.onError?.call(() {
-        _loadView(id);
+        _loadView();
       });
     }
   }
@@ -97,7 +103,8 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
     return AndroidView(
       viewType: "flutter_gdt_splash_ad_view",
       onPlatformViewCreated: (id) async {
-        _loadView(id);
+        _channelId = id;
+        _loadView();
       },
     );
   }
@@ -111,7 +118,8 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
       },
       creationParamsCodec: new StandardMessageCodec(),
       onPlatformViewCreated: (int id) async {
-        _loadView(id);
+        _channelId = id;
+        _loadView();
       },
     );
   }
