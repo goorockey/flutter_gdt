@@ -49,27 +49,24 @@ public class NativeExpressManager {
 
   private HashMap<String, NativeExpressAD> mNativeExpressAdCache;
   private HashMap<String, ConcurrentLinkedQueue<NativeExpressADView>> mNativeExpressAdViewCache;
-  private MethodChannel.Result mTmpResult;
-  private MethodChannel mMethodChannel;
 
   public void preloadNativeExpressAd(Activity activity, String appId, final String positionId, ADSize adSize,
-      int preloadCount) {
-    if (mNativeExpressAdCache.get(positionId) == null) {
-      mNativeExpressAdCache.put(positionId, new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
+      int preloadCount, final MethodChannel methodChannel, final String channelId, final MethodChannel.Result result) {
+    if (mNativeExpressAdCache.get(channelId) == null) {
+      mNativeExpressAdCache.put(channelId, new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
         @Override
         public void onADLoaded(List<NativeExpressADView> list) {
           super.onADLoaded(list);
 
-          putAdViewCache(positionId, list);
+          putAdViewCache(channelId, list);
         }
 
         @Override
         public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
           super.onRenderSuccess(nativeExpressADView);
 
-          if (mTmpResult != null) {
-            mTmpResult.success(true);
-            mTmpResult = null;
+          if (result != null) {
+            result.success(true);
           }
         }
 
@@ -77,9 +74,8 @@ public class NativeExpressManager {
         public void onRenderFail(NativeExpressADView adView) {
           super.onRenderFail(adView);
 
-          if (mTmpResult != null) {
-            mTmpResult.success(false);
-            mTmpResult = null;
+          if (result != null) {
+            result.success(false);
           }
         }
 
@@ -87,9 +83,8 @@ public class NativeExpressManager {
         public void onNoAD(AdError adError) {
           super.onNoAD(adError);
 
-          if (mTmpResult != null) {
-            mTmpResult.success(false);
-            mTmpResult = null;
+          if (result != null) {
+            result.success(false);
           }
         }
 
@@ -97,32 +92,28 @@ public class NativeExpressManager {
         public void onADClicked(NativeExpressADView adView) {
           super.onADClicked(adView);
 
-          if (mMethodChannel != null) {
-            mMethodChannel.invokeMethod("adClicked", null);
-            mMethodChannel = null;
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adClicked", null);
           }
         }
       }));
     }
 
-    NativeExpressAD nativeExpressAD = mNativeExpressAdCache.get(positionId);
+    NativeExpressAD nativeExpressAD = mNativeExpressAdCache.get(channelId);
     nativeExpressAD.loadAD(preloadCount);
   }
 
   public void getNativeExpressView(Activity activity, String appId, final String positionId, ADSize adSize,
-      int preloadCount, final MethodChannel.Result result, final MethodChannel methodChannel,
+      int preloadCount, final MethodChannel.Result result, final MethodChannel methodChannel, final String channelId,
       final NativeExpressViewGetCallback callback) {
-    mTmpResult = result;
-    mMethodChannel = methodChannel;
-
-    ConcurrentLinkedQueue<NativeExpressADView> adViews = getViewQueue(positionId);
+    ConcurrentLinkedQueue<NativeExpressADView> adViews = getViewQueue(channelId);
     if (adViews != null && adViews.size() > 0) {
       if (callback != null) {
-        callback.viewGet(getAdView(positionId));
+        callback.viewGet(getAdView(channelId));
       }
 
       if (adViews.isEmpty() && preloadCount > 0) {
-        preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount);
+        preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
       }
       return;
     }
@@ -145,9 +136,8 @@ public class NativeExpressManager {
       public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
         super.onRenderSuccess(nativeExpressADView);
 
-        if (mTmpResult != null) {
-          mTmpResult.success(true);
-          mTmpResult = null;
+        if (result != null) {
+          result.success(true);
         }
       }
 
@@ -155,9 +145,8 @@ public class NativeExpressManager {
       public void onRenderFail(NativeExpressADView adView) {
         super.onRenderFail(adView);
 
-        if (mTmpResult != null) {
-          mTmpResult.success(false);
-          mTmpResult = null;
+        if (result != null) {
+          result.success(false);
         }
       }
 
@@ -165,9 +154,8 @@ public class NativeExpressManager {
       public void onNoAD(AdError adError) {
         super.onNoAD(adError);
 
-        if (mTmpResult != null) {
-          mTmpResult.success(false);
-          mTmpResult = null;
+        if (result != null) {
+          result.success(false);
         }
       }
 
@@ -175,30 +163,29 @@ public class NativeExpressManager {
       public void onADClicked(NativeExpressADView adView) {
         super.onADClicked(adView);
 
-        if (mMethodChannel != null) {
-          mMethodChannel.invokeMethod("adClicked", null);
-          mMethodChannel = null;
+        if (methodChannel != null) {
+          methodChannel.invokeMethod("adClicked", null);
         }
       }
-    }).loadAD(preloadCount);
+    }).loadAD(1);
 
-    preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount);
+    preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
   }
 
-  private synchronized ConcurrentLinkedQueue<NativeExpressADView> getViewQueue(String posId) {
-    if (mNativeExpressAdViewCache.get(posId) == null) {
-      mNativeExpressAdViewCache.put(posId, new ConcurrentLinkedQueue<NativeExpressADView>());
+  private synchronized ConcurrentLinkedQueue<NativeExpressADView> getViewQueue(String channelId) {
+    if (mNativeExpressAdViewCache.get(channelId) == null) {
+      mNativeExpressAdViewCache.put(channelId, new ConcurrentLinkedQueue<NativeExpressADView>());
     }
-    return mNativeExpressAdViewCache.get(posId);
+    return mNativeExpressAdViewCache.get(channelId);
   }
 
-  private void putAdViewCache(String posId, List<NativeExpressADView> list) {
-    ConcurrentLinkedQueue<NativeExpressADView> queue = getViewQueue(posId);
+  private void putAdViewCache(String channelId, List<NativeExpressADView> list) {
+    ConcurrentLinkedQueue<NativeExpressADView> queue = getViewQueue(channelId);
     queue.addAll(list);
   }
 
-  private NativeExpressADView getAdView(String posId) {
-    ConcurrentLinkedQueue<NativeExpressADView> queue = getViewQueue(posId);
+  private NativeExpressADView getAdView(String channelId) {
+    ConcurrentLinkedQueue<NativeExpressADView> queue = getViewQueue(channelId);
     return (queue == null || queue.isEmpty()) ? null : queue.poll();
   }
 

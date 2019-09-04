@@ -35,11 +35,13 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
   private NativeExpressADView mNativeExpressAdView;
   private LinearLayout mLinearLayout;
   private Activity mActivity;
-  private MethodChannel methodChannel;
+  private MethodChannel mMethodChannel;
+  private String mChannelId;
 
   FlutterNativeExpressView(Activity activity, BinaryMessenger messenger, int id) {
-    methodChannel = new MethodChannel(messenger, "flutter_gdt_native_express_ad_view_" + id);
-    methodChannel.setMethodCallHandler(this);
+    mChannelId = "flutter_gdt_native_express_ad_view_" + id;
+    mMethodChannel = new MethodChannel(messenger, mChannelId);
+    mMethodChannel.setMethodCallHandler(this);
     this.mActivity = activity;
     if (mLinearLayout == null) {
       mLinearLayout = new LinearLayout(activity);
@@ -128,7 +130,7 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
     mLinearLayout.setLayoutParams(layoutParams);
 
     NativeExpressManager.getInstance().getNativeExpressView(mActivity, appId, positionId,
-        new ADSize(expressWidth, expressHeight), preloadCount, result, methodChannel,
+        new ADSize(expressWidth, expressHeight), preloadCount, result, mMethodChannel, mChannelId,
         new NativeExpressManager.NativeExpressViewGetCallback() {
           @Override
           public void viewGet(NativeExpressADView view) {

@@ -28,6 +28,7 @@ public class FlutterGdtPlugin implements MethodCallHandler {
     public FlutterGdtPlugin(Activity activity) {
         mActivity = activity;
     }
+
     /**
      * Plugin registration.
      */
@@ -35,9 +36,11 @@ public class FlutterGdtPlugin implements MethodCallHandler {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_gdt");
         channel.setMethodCallHandler(new FlutterGdtPlugin(registrar.activity()));
         registrar.platformViewRegistry().registerViewFactory("flutter_gdt_native_express_ad_view",
-                new FlutterNativeExpressViewFactory(new StandardMessageCodec(), registrar.activity(), registrar.messenger()));
+                new FlutterNativeExpressViewFactory(new StandardMessageCodec(), registrar.activity(),
+                        registrar.messenger()));
         registrar.platformViewRegistry().registerViewFactory("flutter_gdt_splash_ad_view",
-                new FlutterSplashAdViewFactory(new StandardMessageCodec(), registrar.activity(), registrar.messenger()));
+                new FlutterSplashAdViewFactory(new StandardMessageCodec(), registrar.activity(),
+                        registrar.messenger()));
     }
 
     @Override
@@ -60,15 +63,18 @@ public class FlutterGdtPlugin implements MethodCallHandler {
     private ArrayList<String> getNeedPermissionList() {
         ArrayList<String> lackedPermission = new ArrayList<String>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if ((mActivity.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)) {
+            if ((mActivity
+                    .checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)) {
                 lackedPermission.add(Manifest.permission.READ_PHONE_STATE);
             }
 
-            if ((mActivity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            if ((mActivity.checkSelfPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                 lackedPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
 
-            if ((mActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            if ((mActivity.checkSelfPermission(
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
                 lackedPermission.add(Manifest.permission.ACCESS_FINE_LOCATION);
             }
         }
@@ -100,7 +106,6 @@ public class FlutterGdtPlugin implements MethodCallHandler {
             }
         }
 
-
         String appId = call.argument("appId");
         String posId = call.argument("positionId");
         Object width = call.argument("width");
@@ -121,6 +126,7 @@ public class FlutterGdtPlugin implements MethodCallHandler {
             preloadCount = (int) preload;
         }
 
-        NativeExpressManager.getInstance().preloadNativeExpressAd(mActivity, appId, posId, new ADSize((int) width, (int) height), preloadCount);
+        // NativeExpressManager.getInstance().preloadNativeExpressAd(mActivity, appId,
+        // posId, new ADSize((int) width, (int) height), preloadCount);
     }
 }
