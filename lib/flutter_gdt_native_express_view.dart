@@ -11,6 +11,7 @@ class FlutterGdtExpressView extends StatefulWidget {
   final Function onLoaded;
   final Function onError;
   final Function onClick;
+  final Function onExposure;
 
   FlutterGdtExpressView(
     this.appId,
@@ -21,6 +22,7 @@ class FlutterGdtExpressView extends StatefulWidget {
     this.onLoaded,
     this.onError,
     this.onClick,
+    this.onExposure,
   });
 
   @override
@@ -60,6 +62,27 @@ class _FlutterGdtExpressViewState extends State<FlutterGdtExpressView> {
           });
           break;
         }
+      case 'adLoaded':
+        {
+          widget.onLoaded?.call(() {
+            _loadView();
+          });
+          break;
+        }
+      case 'adExposure':
+        {
+          widget.onExposure?.call(() {
+            _loadView();
+          });
+          break;
+        }
+      case 'adError':
+        {
+          widget.onError?.call(() {
+            _loadView();
+          });
+          break;
+        }
       default:
         break;
     }
@@ -86,11 +109,7 @@ class _FlutterGdtExpressViewState extends State<FlutterGdtExpressView> {
       });
     }
 
-    if (result == true) {
-      widget.onLoaded?.call(() {
-        _loadView();
-      });
-    } else {
+    if (result != true) {
       widget.onError?.call(() {
         _loadView();
       });

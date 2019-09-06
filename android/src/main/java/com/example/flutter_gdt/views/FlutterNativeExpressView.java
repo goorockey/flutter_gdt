@@ -96,7 +96,7 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
     }
   }
 
-  private void showNativeExpressAd(MethodCall call, MethodChannel.Result result) {
+  private void showNativeExpressAd(final MethodCall call, final MethodChannel.Result result) {
     String appId = call.argument("appId");
     String positionId = call.argument("positionId");
     Object width = call.argument("width");
@@ -143,11 +143,15 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
             mLinearLayout.removeAllViews();
             mLinearLayout.addView(view,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            result.success(true);
           }
 
           @Override
-          public void viewGetError(int code, String reason) {
-            LogUtils.e(Consts.TAG, "error: code: " + code + " ,reason: " + reason);
+          public void viewGetError(String reason) {
+            LogUtils.e(Consts.TAG, "error, reason: " + reason);
+
+            result.success(false);
           }
         });
   }

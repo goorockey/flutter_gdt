@@ -26,7 +26,7 @@ public class NativeExpressManager {
   public interface NativeExpressViewGetCallback {
     void viewGet(NativeExpressADView view);
 
-    void viewGetError(int code, String reason);
+    void viewGetError(String reason);
   }
 
   private volatile static NativeExpressManager mInstance;
@@ -62,11 +62,20 @@ public class NativeExpressManager {
         }
 
         @Override
+        public void onADExposure(NativeExpressADView nativeExpressADView) {
+          super.onADExposure(nativeExpressADView);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adExposure", null);
+          }
+        }
+
+        @Override
         public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
           super.onRenderSuccess(nativeExpressADView);
 
-          if (result != null) {
-            result.success(true);
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adLoaded", null);
           }
         }
 
@@ -74,8 +83,8 @@ public class NativeExpressManager {
         public void onRenderFail(NativeExpressADView adView) {
           super.onRenderFail(adView);
 
-          if (result != null) {
-            result.success(false);
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adError", null);
           }
         }
 
@@ -83,8 +92,8 @@ public class NativeExpressManager {
         public void onNoAD(AdError adError) {
           super.onNoAD(adError);
 
-          if (result != null) {
-            result.success(false);
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adError", null);
           }
         }
 
@@ -106,70 +115,87 @@ public class NativeExpressManager {
   public void getNativeExpressView(Activity activity, String appId, final String positionId, ADSize adSize,
       int preloadCount, final MethodChannel.Result result, final MethodChannel methodChannel, final String channelId,
       final NativeExpressViewGetCallback callback) {
-    ConcurrentLinkedQueue<NativeExpressADView> adViews = getViewQueue(channelId);
-    if (adViews != null && adViews.size() > 0) {
+    try {
+      ConcurrentLinkedQueue<NativeExpressADView> adViews = getViewQueue(channelId);
+      if (adViews != null && adViews.size() > 0) {
+        if (callback != null) {
+          callback.viewGet(getAdView(channelId));
+        }
+
+        if (adViews.isEmpty() && preloadCount > 0) {
+          preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
+        }
+        return;
+      }
+
+      new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
+        @Override
+        public void onADLoaded(List<NativeExpressADView> list) {
+          super.onADLoaded(list);
+
+          if (list == null || list.isEmpty()) {
+            return;
+          }
+          if (callback == null) {
+            return;
+          }
+
+          callback.viewGet(list.get(0));
+        }
+
+        @Override
+        public void onADExposure(NativeExpressADView nativeExpressADView) {
+          super.onADExposure(nativeExpressADView);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adExposure", null);
+          }
+        }
+
+        @Override
+        public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
+          super.onRenderSuccess(nativeExpressADView);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adLoaded", null);
+          }
+        }
+
+        @Override
+        public void onRenderFail(NativeExpressADView adView) {
+          super.onRenderFail(adView);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adError", null);
+          }
+        }
+
+        @Override
+        public void onNoAD(AdError adError) {
+          super.onNoAD(adError);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adError", null);
+          }
+        }
+
+        @Override
+        public void onADClicked(NativeExpressADView adView) {
+          super.onADClicked(adView);
+
+          if (methodChannel != null) {
+            methodChannel.invokeMethod("adClicked", null);
+          }
+        }
+      }).loadAD(1);
+
+      preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
+    } catch (Exception e) {
+      e.printStackTrace();
       if (callback != null) {
-        callback.viewGet(getAdView(channelId));
+        callback.viewGetError(e.getMessage());
       }
-
-      if (adViews.isEmpty() && preloadCount > 0) {
-        preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
-      }
-      return;
     }
-
-    new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
-      @Override
-      public void onADLoaded(List<NativeExpressADView> list) {
-        super.onADLoaded(list);
-
-        if (list == null || list.isEmpty()) {
-          return;
-        }
-        if (callback == null) {
-          return;
-        }
-        callback.viewGet(list.get(0));
-      }
-
-      @Override
-      public void onRenderSuccess(NativeExpressADView nativeExpressADView) {
-        super.onRenderSuccess(nativeExpressADView);
-
-        if (result != null) {
-          result.success(true);
-        }
-      }
-
-      @Override
-      public void onRenderFail(NativeExpressADView adView) {
-        super.onRenderFail(adView);
-
-        if (result != null) {
-          result.success(false);
-        }
-      }
-
-      @Override
-      public void onNoAD(AdError adError) {
-        super.onNoAD(adError);
-
-        if (result != null) {
-          result.success(false);
-        }
-      }
-
-      @Override
-      public void onADClicked(NativeExpressADView adView) {
-        super.onADClicked(adView);
-
-        if (methodChannel != null) {
-          methodChannel.invokeMethod("adClicked", null);
-        }
-      }
-    }).loadAD(1);
-
-    preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
   }
 
   private synchronized ConcurrentLinkedQueue<NativeExpressADView> getViewQueue(String channelId) {
