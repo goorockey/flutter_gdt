@@ -144,14 +144,22 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
             mLinearLayout.addView(view,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-            result.success(true);
+            try {
+              result.success(true);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
 
           @Override
           public void viewGetError(String reason) {
             LogUtils.e(Consts.TAG, "error, reason: " + reason);
 
-            result.success(false);
+            try {
+              result.success(false);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
           }
         });
   }

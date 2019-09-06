@@ -56,7 +56,11 @@ public class FlutterGdtPlugin implements MethodCallHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.checkAndRequestPermission(result);
         } else {
-            result.success(true);
+            try {
+                result.success(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -87,10 +91,18 @@ public class FlutterGdtPlugin implements MethodCallHandler {
 
         // 权限都已经有了，那么直接调用SDK
         if (lackedPermission.size() == 0) {
-            result.success(true);
+            try {
+                result.success(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             // 请求所缺少的权限，在onRequestPermissionsResult中再看是否获得权限，如果获得权限就可以调用SDK，否则不要调用SDK。
-            result.success(false);
+            try {
+                result.success(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             String[] requestPermissions = new String[lackedPermission.size()];
             lackedPermission.toArray(requestPermissions);
             mActivity.requestPermissions(requestPermissions, 1024);
