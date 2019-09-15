@@ -5,8 +5,7 @@ import android.content.Context;
 import java.util.HashMap;
 
 /**
- * @author luopeng
- * Created at 2019/7/8 17:32
+ * @author luopeng Created at 2019/7/8 17:32
  */
 public class Consts {
     public static final String TAG = "flutter_gdt";
@@ -18,6 +17,7 @@ public class Consts {
 
     public static class FunctionName {
         public static final String RENDER_SPLASH_AD = "renderSplashAd";
+        public static final String RENDER_BANNER_AD = "renderBannerAd";
     }
 
     public static class ParamKey {
