@@ -98,7 +98,7 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                 return;
             }
 
-            new SplashAD(mActivity, mLinearLayout, appId, positionId, new SplashADListener() {
+            SplashAD splashAD = new SplashAD(mActivity, mLinearLayout, appId, positionId, new SplashADListener() {
                 @Override
                 public void onADDismissed() {
                     Log.i(Consts.TAG, "Adnet splash ad dismissed");
@@ -144,6 +144,8 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                     }
                 }
             }, 3000);
+            splashAD.fetchAndShowIn(mLinearLayout);
+
         } catch (Exception e) {
             try {
                 result.success(false);
