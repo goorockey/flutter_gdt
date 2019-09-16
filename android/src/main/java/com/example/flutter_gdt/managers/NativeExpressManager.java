@@ -9,6 +9,7 @@ import com.qq.e.ads.nativ.ADSize;
 import com.qq.e.ads.nativ.NativeExpressAD;
 import com.qq.e.ads.nativ.NativeExpressADView;
 import com.qq.e.comm.util.AdError;
+import com.qq.e.ads.cfg.VideoOption;
 
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
@@ -109,6 +110,12 @@ public class NativeExpressManager {
     }
 
     NativeExpressAD nativeExpressAD = mNativeExpressAdCache.get(channelId);
+    nativeExpressAD.setVideoOption(new VideoOption.Builder().setAutoPlayPolicy(VideoOption.AutoPlayPolicy.ALWAYS) // 设置什么网络环境下可以自动播放视频
+        .setAutoPlayMuted(true) // 设置自动播放视频时，是否静音
+        .build());
+    nativeExpressAD.setMaxVideoDuration(60);
+    nativeExpressAD.setVideoPlayPolicy(VideoOption.VideoPlayPolicy.AUTO);
+
     nativeExpressAD.loadAD(preloadCount);
   }
 
@@ -128,7 +135,7 @@ public class NativeExpressManager {
         return;
       }
 
-      new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
+      NativeExpressAD nativeExpressAD = new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
         @Override
         public void onADLoaded(List<NativeExpressADView> list) {
           super.onADLoaded(list);
@@ -187,7 +194,13 @@ public class NativeExpressManager {
             methodChannel.invokeMethod("adClicked", null);
           }
         }
-      }).loadAD(1);
+      });
+      nativeExpressAD.setVideoOption(new VideoOption.Builder().setAutoPlayPolicy(VideoOption.AutoPlayPolicy.ALWAYS) // 设置什么网络环境下可以自动播放视频
+          .setAutoPlayMuted(true) // 设置自动播放视频时，是否静音
+          .build());
+      nativeExpressAD.setMaxVideoDuration(60);
+      nativeExpressAD.setVideoPlayPolicy(VideoOption.VideoPlayPolicy.AUTO);
+      nativeExpressAD.loadAD(1);
 
       preloadNativeExpressAd(activity, appId, positionId, adSize, preloadCount, methodChannel, channelId, result);
     } catch (Exception e) {

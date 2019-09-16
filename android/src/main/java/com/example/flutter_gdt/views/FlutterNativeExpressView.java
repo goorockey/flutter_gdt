@@ -139,10 +139,11 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
             }
             mNativeExpressAdView = view;
 
-            view.render();
             mLinearLayout.removeAllViews();
             mLinearLayout.addView(view,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            view.render();
 
             try {
               result.success(true);
