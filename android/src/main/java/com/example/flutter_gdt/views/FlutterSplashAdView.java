@@ -98,6 +98,12 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                 return;
             }
 
+            int timeout = 3000;
+            Object timeoutVal = call.argument(Consts.ParamKey.TIMEOUT);
+            if (timeoutVal != null) {
+                timeout = (int) timeoutVal;
+            }
+
             SplashAD splashAD = new SplashAD(mActivity, mLinearLayout, appId, positionId, new SplashADListener() {
                 @Override
                 public void onADDismissed() {
@@ -143,7 +149,7 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                         e.printStackTrace();
                     }
                 }
-            }, 3000);
+            }, timeout);
             splashAD.fetchAndShowIn(mLinearLayout);
 
         } catch (Exception e) {

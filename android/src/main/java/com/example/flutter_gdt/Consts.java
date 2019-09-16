@@ -23,5 +23,6 @@ public class Consts {
     public static class ParamKey {
         public static final String APP_ID = "appId";
         public static final String POSITION_ID = "positionId";
+        public static final String TIMEOUT = "timeout";
     }
 }

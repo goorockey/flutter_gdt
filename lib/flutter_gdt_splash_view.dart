@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 class FlutterGdtSplashView extends StatefulWidget {
   final String appId;
   final String positionId;
+  final int timeout;
   final Function onLoaded;
   final Function onError;
   final Function onClick;
@@ -14,6 +15,7 @@ class FlutterGdtSplashView extends StatefulWidget {
   FlutterGdtSplashView(
     this.appId,
     this.positionId, {
+    this.timeout = 3000,
     this.onLoaded,
     this.onError,
     this.onClick,
@@ -55,9 +57,8 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
         }
       case 'adTick':
         {
-          widget.onTick?.call(() {
-            _loadView();
-          });
+          int timeLeft = call.arguments;
+          widget.onTick?.call(timeLeft);
           break;
         }
       case 'adDismissed':
@@ -80,6 +81,7 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
     final result = await _channel.invokeMethod("renderSplashAd", {
       "appId": widget.appId,
       "positionId": widget.positionId,
+      "timeout": widget.timeout,
     });
 
     if (mounted && loaded != result) {
@@ -102,7 +104,7 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
   Widget _androidView() {
     return AndroidView(
       viewType: "flutter_gdt_splash_ad_view",
-      onPlatformViewCreated: (id) async {
+      onPlatformViewCreated: (int id) async {
         _channelId = id;
         _loadView();
       },
@@ -112,10 +114,6 @@ class _FlutterGdtSplashViewState extends State<FlutterGdtSplashView> {
   Widget _iosView() {
     return UiKitView(
       viewType: "flutter_gdt_splash_ad_view",
-      creationParams: <String, dynamic>{
-        "appId": widget.appId,
-        "positionId": widget.positionId,
-      },
       creationParamsCodec: new StandardMessageCodec(),
       onPlatformViewCreated: (int id) async {
         _channelId = id;
