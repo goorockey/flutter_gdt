@@ -112,26 +112,48 @@ public class FlutterBannerAdView implements PlatformView, MethodChannel.MethodCa
                 public void onADReceive() {
                     Log.i(Consts.TAG, "Adnet banner ad received");
 
-                    methodChannel.invokeMethod("adLoaded", null);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adLoaded", null);
+                        }
+                    });
                 }
 
                 @Override
                 public void onNoAD(AdError adError) {
                     Log.i(Consts.TAG, "Adnet banner ad noad");
-                    methodChannel.invokeMethod("adError", null);
+
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adError", null);
+                        }
+                    });
                 }
 
                 @Override
                 public void onADExposure() {
                     Log.i(Consts.TAG, "Adnet banner ad exposured");
-                    methodChannel.invokeMethod("adExposure", null);
+
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adExposure", null);
+                        }
+                    });
                 }
 
                 @Override
                 public void onADClicked() {
                     Log.i(Consts.TAG, "Adnet banner ad clicked");
 
-                    methodChannel.invokeMethod("adClicked", null);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adClicked", null);
+                        }
+                    });
                 }
 
                 @Override

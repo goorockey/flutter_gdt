@@ -51,7 +51,7 @@ public class NativeExpressManager {
   private HashMap<String, NativeExpressAD> mNativeExpressAdCache;
   private HashMap<String, ConcurrentLinkedQueue<NativeExpressADView>> mNativeExpressAdViewCache;
 
-  public void preloadNativeExpressAd(Activity activity, String appId, final String positionId, ADSize adSize,
+  public void preloadNativeExpressAd(final Activity activity, String appId, final String positionId, ADSize adSize,
       int preloadCount, final MethodChannel methodChannel, final String channelId, final MethodChannel.Result result) {
     if (mNativeExpressAdCache.get(channelId) == null) {
       mNativeExpressAdCache.put(channelId, new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
@@ -67,7 +67,12 @@ public class NativeExpressManager {
           super.onADExposure(nativeExpressADView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adExposure", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adExposure", null);
+              }
+            });
           }
         }
 
@@ -76,7 +81,12 @@ public class NativeExpressManager {
           super.onRenderSuccess(nativeExpressADView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adLoaded", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adLoaded", null);
+              }
+            });
           }
         }
 
@@ -85,7 +95,12 @@ public class NativeExpressManager {
           super.onRenderFail(adView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adError", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adError", null);
+              }
+            });
           }
         }
 
@@ -94,7 +109,12 @@ public class NativeExpressManager {
           super.onNoAD(adError);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adError", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adError", null);
+              }
+            });
           }
         }
 
@@ -103,7 +123,12 @@ public class NativeExpressManager {
           super.onADClicked(adView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adClicked", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adClicked", null);
+              }
+            });
           }
         }
       }));
@@ -119,7 +144,7 @@ public class NativeExpressManager {
     nativeExpressAD.loadAD(preloadCount);
   }
 
-  public void getNativeExpressView(Activity activity, String appId, final String positionId, ADSize adSize,
+  public void getNativeExpressView(final Activity activity, String appId, final String positionId, ADSize adSize,
       int preloadCount, final MethodChannel.Result result, final MethodChannel methodChannel, final String channelId,
       final NativeExpressViewGetCallback callback) {
     try {
@@ -155,7 +180,12 @@ public class NativeExpressManager {
           super.onADExposure(nativeExpressADView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adExposure", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adExposure", null);
+              }
+            });
           }
         }
 
@@ -164,7 +194,12 @@ public class NativeExpressManager {
           super.onRenderSuccess(nativeExpressADView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adLoaded", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adLoaded", null);
+              }
+            });
           }
         }
 
@@ -173,7 +208,12 @@ public class NativeExpressManager {
           super.onRenderFail(adView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adError", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adError", null);
+              }
+            });
           }
         }
 
@@ -182,7 +222,12 @@ public class NativeExpressManager {
           super.onNoAD(adError);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adError", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adError", null);
+              }
+            });
           }
         }
 
@@ -191,7 +236,12 @@ public class NativeExpressManager {
           super.onADClicked(adView);
 
           if (methodChannel != null) {
-            methodChannel.invokeMethod("adClicked", null);
+            activity.runOnUiThread(new Runnable() {
+              @Override
+              public void run() {
+                methodChannel.invokeMethod("adClicked", null);
+              }
+            });
           }
         }
       });

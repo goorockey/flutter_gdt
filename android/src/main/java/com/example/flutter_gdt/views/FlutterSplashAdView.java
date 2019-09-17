@@ -108,7 +108,13 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                 @Override
                 public void onADDismissed() {
                     Log.i(Consts.TAG, "Adnet splash ad dismissed");
-                    methodChannel.invokeMethod("adDismissed", null);
+
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adDismissed", null);
+                        }
+                    });
                 }
 
                 @Override
@@ -130,14 +136,24 @@ public class FlutterSplashAdView implements PlatformView, MethodChannel.MethodCa
                 public void onADClicked() {
                     Log.i(Consts.TAG, "Adnet splash ad clicked");
 
-                    methodChannel.invokeMethod("adClicked", null);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adClicked", null);
+                        }
+                    });
                 }
 
                 @Override
-                public void onADTick(long l) {
+                public void onADTick(final long l) {
                     Log.i(Consts.TAG, "Adnet splash ad tick");
 
-                    methodChannel.invokeMethod("adTick", l);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            methodChannel.invokeMethod("adTick", l);
+                        }
+                    });
                 }
 
                 @Override
