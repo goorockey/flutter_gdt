@@ -35,13 +35,13 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
   private NativeExpressADView mNativeExpressAdView;
   private LinearLayout mLinearLayout;
   private Activity mActivity;
-  private MethodChannel mMethodChannel;
+  private MethodChannel methodChannel;
   private String mChannelId;
 
   FlutterNativeExpressView(Activity activity, BinaryMessenger messenger, int id) {
     mChannelId = "flutter_gdt_native_express_ad_view_" + id;
-    mMethodChannel = new MethodChannel(messenger, mChannelId);
-    mMethodChannel.setMethodCallHandler(this);
+    methodChannel = new MethodChannel(messenger, mChannelId);
+    methodChannel.setMethodCallHandler(this);
     this.mActivity = activity;
     if (mLinearLayout == null) {
       mLinearLayout = new LinearLayout(activity);
@@ -83,9 +83,14 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
 
   @Override
   public void dispose() {
+    methodChannel.setMethodCallHandler(null);
+
     if (mNativeExpressAdView != null) {
       mNativeExpressAdView.destroy();
       mNativeExpressAdView = null;
+    }
+    if (mLinearLayout != null) {
+        mLinearLayout.removeAllViews();
     }
   }
 
@@ -130,7 +135,7 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
     mLinearLayout.setLayoutParams(layoutParams);
 
     NativeExpressManager.getInstance().getNativeExpressView(mActivity, appId, positionId,
-        new ADSize(expressWidth, expressHeight), preloadCount, result, mMethodChannel, mChannelId,
+        new ADSize(expressWidth, expressHeight), preloadCount, result, methodChannel, mChannelId,
         new NativeExpressManager.NativeExpressViewGetCallback() {
           @Override
           public void viewGet(NativeExpressADView view) {
