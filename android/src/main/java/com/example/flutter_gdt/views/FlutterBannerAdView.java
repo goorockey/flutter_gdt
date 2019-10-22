@@ -82,9 +82,6 @@ public class FlutterBannerAdView implements PlatformView, MethodChannel.MethodCa
             mBannerView.destroy();
             mBannerView = null;
         }
-        if (mLinearLayout != null) {
-            mLinearLayout.removeAllViews();
-        }
     }
 
     @Override

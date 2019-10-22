@@ -89,9 +89,6 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
       mNativeExpressAdView.destroy();
       mNativeExpressAdView = null;
     }
-    if (mLinearLayout != null) {
-        mLinearLayout.removeAllViews();
-    }
   }
 
   @Override

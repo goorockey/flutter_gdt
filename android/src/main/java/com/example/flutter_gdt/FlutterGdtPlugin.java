@@ -25,7 +25,7 @@ import io.flutter.plugin.common.StandardMessageCodec;
 /** FlutterGdtPlugin */
 public class FlutterGdtPlugin implements MethodCallHandler {
     private Activity mActivity;
-
+ 
     public FlutterGdtPlugin(Activity activity) {
         mActivity = activity;
     }
@@ -55,7 +55,11 @@ public class FlutterGdtPlugin implements MethodCallHandler {
         } else if ("preloadNativeExpress".equals(call.method)) {
             this.preloadNativeExpress(call, result);
         }
+
+        result.notImplemented();
     }
+
+
 
     private void checkPermission(MethodCall call, Result result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
