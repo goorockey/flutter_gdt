@@ -30,8 +30,6 @@ import io.flutter.plugin.common.BinaryMessenger;
 public class FlutterBannerAdView implements PlatformView, MethodChannel.MethodCallHandler {
     private LinearLayout mLinearLayout;
     private Activity mActivity;
-    private String mAppId;
-    private String mPositionId;
     private MethodChannel methodChannel;
     private UnifiedBannerView mBannerView;
 

@@ -18,5 +18,6 @@ A new flutter plugin project.
   s.dependency 'Flutter'
   s.dependency 'GDTMobSDK'  # 输入你想要的版本号
   s.ios.deployment_target = '8.0'
+  s.static_framework = true
 end
 
