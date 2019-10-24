@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.os.Build;
 
 import com.example.flutter_gdt.Consts;
 import com.example.flutter_gdt.LogUtils;
@@ -53,6 +55,10 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
 
   @Override
   public View getView() {
+    if (mActivity != null && mLinearLayout == null) {
+      mLinearLayout = new LinearLayout(mActivity);
+    }
+
     // 为了让platformView的背景透明
     if (mLinearLayout != null) {
       mLinearLayout.post(new Runnable() {
@@ -72,6 +78,11 @@ public class FlutterNativeExpressView implements PlatformView, MethodChannel.Met
             final Window window = (Window) windowField.get(decorView);
             windowField.setAccessible(false);
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+              window.addFlags(WindowManager.LayoutParams.FLAG_LOCAL_FOCUS_MODE);
+              window.setLocalFocus(true, true);
+            }
           } catch (Exception e) {
             // log the exception
           }
