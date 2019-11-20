@@ -119,6 +119,8 @@ public class FlutterGdtPlugin implements MethodCallHandler {
     }
 
     private void preloadNativeExpress(MethodCall call, Result result) {
+        return;
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             List<String> lackedPermission = getNeedPermissionList();
             if (lackedPermission.size() > 0) {
@@ -147,7 +149,10 @@ public class FlutterGdtPlugin implements MethodCallHandler {
             preloadCount = (int) preload;
         }
 
-        // NativeExpressManager.getInstance().preloadNativeExpressAd(mActivity, appId,
-        // posId, new ADSize((int) width, (int) height), preloadCount);
+        // if (mActivity != null) {
+        //     NativeExpressManager.getInstance().preloadNativeExpressAd(mActivity, appId,
+        //         posId, new ADSize((int) width, (int) height), preloadCount);
+        // }
+        */
     }
 }

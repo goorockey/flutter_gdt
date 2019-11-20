@@ -17,7 +17,7 @@ class FlutterGdt {
       "positionId": param.positionId,
       "width": param.ptWidth,
       "height": param.ptHeight,
-      "preloadCount": param.preloadCount ?? 1,
+      "preloadCount": param.preloadCount ?? 0,
     });
   }
 

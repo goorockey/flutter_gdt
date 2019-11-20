@@ -53,6 +53,10 @@ public class NativeExpressManager {
 
   public void preloadNativeExpressAd(final Activity activity, String appId, final String positionId, ADSize adSize,
       int preloadCount, final MethodChannel methodChannel, final String channelId, final MethodChannel.Result result) {
+    if (preloadCount <= 0) {
+      return;
+    }
+
     if (mNativeExpressAdCache.get(channelId) == null) {
       mNativeExpressAdCache.put(channelId, new NativeExpressAD(activity, adSize, appId, positionId, new AdListener() {
         @Override

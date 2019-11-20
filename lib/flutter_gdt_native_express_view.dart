@@ -100,7 +100,7 @@ class _FlutterGdtExpressViewState extends State<FlutterGdtExpressView> {
       "positionId": widget.positionId,
       "width": widget.width,
       "height": widget.height,
-      "preloadCount": widget.preloadCount ?? 1,
+      "preloadCount": widget.preloadCount ?? 0,
     });
 
     if (mounted && loaded != result) {

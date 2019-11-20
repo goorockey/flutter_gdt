@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class Consts {
     public static final String TAG = "flutter_gdt";
-    public static final int DEFAULT_PRELOAD_COUNT = 1;
+    public static final int DEFAULT_PRELOAD_COUNT = 0;
 
     public static int dp2px(Context context, int dp) {
         return (int) ((float) dp * context.getResources().getDisplayMetrics().density);
