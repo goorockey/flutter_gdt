@@ -5,12 +5,18 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import java.util.Date;
+
 
 import com.example.flutter_gdt.managers.NativeExpressManager;
 import com.example.flutter_gdt.views.FlutterNativeExpressViewFactory;
 import com.example.flutter_gdt.views.FlutterSplashAdViewFactory;
 import com.example.flutter_gdt.views.FlutterBannerAdViewFactory;
+
 import com.qq.e.ads.nativ.ADSize;
+import com.qq.e.ads.rewardvideo.RewardVideoAD;
+import com.qq.e.ads.rewardvideo.RewardVideoADListener;
+import com.qq.e.comm.util.AdError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +58,13 @@ public class FlutterGdtPlugin implements MethodCallHandler {
     public void onMethodCall(MethodCall call, Result result) {
         if ("checkPermissions".equals(call.method)) {
             this.checkPermission(call, result);
+            return;
         } else if ("preloadNativeExpress".equals(call.method)) {
             this.preloadNativeExpress(call, result);
+            return;
+        } else if ("loadRewardVideoAd".equals(call.method)) {
+            this.loadRewardVideoAd(call, result);
+            return;
         }
 
         result.notImplemented();
@@ -154,5 +165,127 @@ public class FlutterGdtPlugin implements MethodCallHandler {
         //         posId, new ADSize((int) width, (int) height), preloadCount);
         // }
         */
+    }
+
+    private static final class VIDEO_RESULT_TYPE {
+        static final int VIDEO_FAILED = 1;
+        static final int VIDEO_ERROR = 2;
+        static final int VIDEO_CLOSE = 3;
+        static final int VIDEO_COMPLETE = 4;
+        static final int VIDEO_REWARD_VERIFIED = 5;
+    }
+
+    private class RewardAdListener implements RewardVideoADListener {
+        private Result mResult;
+        private boolean mVideoComplete;
+        private RewardVideoAD mRewardVideoAD;
+
+        RewardAdListener(Result result) {
+            mResult = result;
+            mVideoComplete = false;
+        }
+
+        public void setRewardVideoAd(RewardVideoAD rewardVideoAD) {
+            mRewardVideoAD = rewardVideoAD;
+        }
+
+        /**
+        * 广告加载成功，可在此回调后进行广告展示
+        **/
+        @Override
+        public void onADLoad() {
+            System.out.println("GDT video load ad success");
+            mRewardVideoAD.showAD();
+        }
+
+        /**
+        * 视频素材缓存成功，可在此回调后进行广告展示
+        */
+        @Override
+        public void onVideoCached() {
+            LogUtils.i(Consts.TAG, "GDT video onVideoCached");
+        }
+
+        /**
+        * 激励视频广告页面展示
+        */
+        @Override
+        public void onADShow() {
+            LogUtils.i(Consts.TAG, "GDT video onADShow");
+        }
+
+        /**
+        * 激励视频广告曝光
+        */
+        @Override
+        public void onADExpose() {
+            LogUtils.i(Consts.TAG, "GDT video onADExpose");
+        }
+
+        /**
+        * 激励视频触发激励（观看视频大于一定时长或者视频播放完毕）
+        */
+        @Override
+        public void onReward() {
+            LogUtils.i(Consts.TAG, "GDT video onReward");
+        }
+
+        /**
+        * 激励视频广告被点击
+        */
+        @Override
+        public void onADClick() {
+            LogUtils.i(Consts.TAG, "GDT video onADClick");
+        }
+
+        /**
+        * 激励视频播放完毕
+        */
+        @Override
+        public void onVideoComplete() {
+            LogUtils.i(Consts.TAG, "GDT video onVideoComplete");
+            mVideoComplete = true;
+        }
+
+        /**
+        * 激励视频广告被关闭
+        */
+        @Override
+        public void onADClose() {
+            LogUtils.i(Consts.TAG, "GDT video onADClose");
+            mResult.success(mVideoComplete ? VIDEO_RESULT_TYPE.VIDEO_COMPLETE : VIDEO_RESULT_TYPE.VIDEO_CLOSE);
+        }
+
+        /**
+        * 广告流程出错
+        */
+        @Override
+        public void onError(AdError adError) {
+            System.out.println(String.format("GDT video onError, error code: %d, error msg: %s",
+                adError.getErrorCode(), adError.getErrorMsg()));
+            mResult.success(VIDEO_RESULT_TYPE.VIDEO_ERROR);
+        }
+
+    }
+
+
+    private void loadRewardVideoAd(final MethodCall call, final Result result) {
+        try {
+            String appId = call.argument("appId");
+            String positionId = call.argument("positionId");
+
+            RewardAdListener rewardAdListener = new RewardAdListener(result);
+            final RewardVideoAD rewardVideoAD = new RewardVideoAD(mActivity, appId, positionId, rewardAdListener);
+            rewardAdListener.setRewardVideoAd(rewardVideoAD);
+
+            rewardVideoAD.loadAD();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                result.success(VIDEO_RESULT_TYPE.VIDEO_FAILED);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 }

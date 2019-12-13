@@ -27,6 +27,13 @@ class FlutterGdt {
       "positionId": param.positionId,
     });
   }
+
+  static Future<int> loadRewardVideoAd({String appId, String positionId}) async {
+    return await _channel.invokeMethod("loadRewardVideoAd", {
+      "appId": appId,
+      "positionId": positionId,
+    });
+  }
 }
 
 class NativeExpressParam {
