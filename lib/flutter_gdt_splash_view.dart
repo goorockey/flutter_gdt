@@ -6,11 +6,11 @@ class FlutterGdtSplashView extends StatefulWidget {
   final String appId;
   final String positionId;
   final int timeout;
-  final Function onLoaded;
-  final Function onError;
-  final Function onClick;
-  final Function onTick;
-  final Function onFinish;
+  final Function? onLoaded;
+  final Function? onError;
+  final Function? onClick;
+  final Function? onTick;
+  final Function? onFinish;
 
   FlutterGdtSplashView(
     this.appId,

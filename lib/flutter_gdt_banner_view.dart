@@ -7,16 +7,16 @@ class FlutterGdtBannerView extends StatefulWidget {
   final String positionId;
   final int width;
   final int height;
-  final Function onLoaded;
-  final Function onError;
-  final Function onClick;
-  final Function onExposure;
+  final Function? onLoaded;
+  final Function? onError;
+  final Function? onClick;
+  final Function? onExposure;
 
   FlutterGdtBannerView(
     this.appId,
     this.positionId, {
-    this.width,
-    this.height,
+    required this.width,
+    required this.height,
     this.onLoaded,
     this.onError,
     this.onClick,

@@ -7,17 +7,17 @@ class FlutterGdtExpressView extends StatefulWidget {
   final String positionId;
   final int width;
   final int height;
-  final int preloadCount;
-  final Function onLoaded;
-  final Function onError;
-  final Function onClick;
-  final Function onExposure;
+  final int? preloadCount;
+  final Function? onLoaded;
+  final Function? onError;
+  final Function? onClick;
+  final Function? onExposure;
 
   FlutterGdtExpressView(
     this.appId,
     this.positionId, {
-    this.width,
-    this.height,
+    required this.width,
+    required this.height,
     this.preloadCount,
     this.onLoaded,
     this.onError,
